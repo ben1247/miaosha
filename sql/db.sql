@@ -25,7 +25,7 @@ CREATE TABLE `item`  (
   `price` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '价格',
   `description` varchar(500) NOT NULL DEFAULT '' COMMENT '描述',
   `sales` int(11) NOT NULL DEFAULT 0 COMMENT '销量',
-  `img_url` varchar(128) NOT NULL DEFAULT '' COMMENT '图片URL',
+  `img_url` varchar(1024) NOT NULL DEFAULT '' COMMENT '图片URL',
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='商品表';
 
