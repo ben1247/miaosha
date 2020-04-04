@@ -36,3 +36,23 @@ CREATE TABLE `item_stock`  (
   `item_id` bigint(20) NOT NULL COMMENT '商品id',
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='商品库存表';
+
+drop table if exists `order_info`;
+CREATE TABLE `order_info` (
+  `id` varchar(32) NOT NULL COMMENT '订单号',
+  `user_id` bigint(20) NOT NULL DEFAULT 0 COMMENT '下单的用户id',
+  `item_id` bigint(20) NOT NULL DEFAULT 0 COMMENT '下单的商品id',
+  `item_price` double NOT NULL DEFAULT 0 COMMENT '商品价格',
+  `amount` int(11) NOT NULL DEFAULT 0 COMMENT '商品数量',
+  `order_price` double NOT NULL DEFAULT 0 COMMENT '订单价格',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='订单表';
+
+drop table if exists `sequence_info`;
+CREATE TABLE `sequence_info`  (
+  `name` varchar(20) NOT NULL COMMENT '名称',
+  `current_value` int(11) NOT NULL DEFAULT 0 COMMENT '当前值',
+  `step` int(11) NOT NULL DEFAULT 0 COMMENT '步长',
+  PRIMARY KEY (`name`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='序列号';
+INSERT INTO `sequence_info` (`name`, `current_value`, `step`) VALUES ('order_info', 0, 1);

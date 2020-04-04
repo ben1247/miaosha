@@ -156,4 +156,11 @@
     order by sales desc
   </select>
 
+  <update id="increaseSales" >
+
+    update item
+    set sales = sales + #{amount,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
 </mapper>

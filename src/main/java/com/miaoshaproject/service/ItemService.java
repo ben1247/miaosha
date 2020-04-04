@@ -7,13 +7,19 @@ import java.util.List;
 
 public interface ItemService {
 
-    //创建商品
+    // 创建商品
     ItemModel createItem(ItemModel itemModel) throws BusinessException;
 
-    //商品列表浏览
+    // 商品列表浏览
     List<ItemModel> listItem();
 
-    //商品详情浏览
+    // 商品详情浏览
     ItemModel getItemById(Long id);
+
+    // 库存扣减
+    boolean decreaseStock(Long itemId,Integer amount) throws BusinessException;
+
+    // 商品销量增加
+    void increaseSales(Long itemId,Integer amount);
 
 }
