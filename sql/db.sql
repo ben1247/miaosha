@@ -22,7 +22,7 @@ drop table if exists `item`;
 CREATE TABLE `item`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
   `title` varchar(64) NOT NULL DEFAULT '' COMMENT '商品标题',
-  `price` decimal(8,2) NOT NULL DEFAULT 0 COMMENT '价格',
+  `price` double NOT NULL DEFAULT 0 COMMENT '价格',
   `description` varchar(500) NOT NULL DEFAULT '' COMMENT '描述',
   `sales` int(11) NOT NULL DEFAULT 0 COMMENT '销量',
   `img_url` varchar(1024) NOT NULL DEFAULT '' COMMENT '图片URL',
@@ -45,6 +45,7 @@ CREATE TABLE `order_info` (
   `item_price` double NOT NULL DEFAULT 0 COMMENT '商品价格',
   `amount` int(11) NOT NULL DEFAULT 0 COMMENT '商品数量',
   `order_price` double NOT NULL DEFAULT 0 COMMENT '订单价格',
+  `promo_id` bigint(20) NOT NULL DEFAULT 0 COMMENT '秒杀活动id',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='订单表';
 
@@ -56,3 +57,14 @@ CREATE TABLE `sequence_info`  (
   PRIMARY KEY (`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='序列号';
 INSERT INTO `sequence_info` (`name`, `current_value`, `step`) VALUES ('order_info', 0, 1);
+
+drop table if exists `promo`;
+CREATE TABLE `promo`  (
+   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+   `promo_name` varchar(128) NOT NULL DEFAULT 0 COMMENT '秒杀活动名称',
+   `start_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '秒杀活动开始时间',
+   `end_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '秒杀活动结束时间',
+   `item_id` bigint(20) NOT NULL COMMENT '商品id',
+   `promo_item_price` double NOT NULL DEFAULT 0 COMMENT '秒杀商品价格',
+   PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='秒杀活动表';

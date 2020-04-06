@@ -39,7 +39,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public OrderModel createOrder(Long userId, Long itemId, Integer amount) throws BusinessException {
+    public OrderModel createOrder(Long userId, Long itemId,Long promoId, Integer amount) throws BusinessException {
 
         // 1. 校验下单状态，下单商品是否存在，用户是否合法，购买数量是否正确
         ItemModel itemModel = itemService.getItemById(itemId);
@@ -54,6 +54,18 @@ public class OrderServiceImpl implements OrderService {
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"数量信息不正确");
         }
 
+        // 校验活动信息
+        if (promoId != null){
+            // (1) 校验对应活动是否存在这个适用商品
+            if (promoId.longValue() != itemModel.getPromoModel().getId()){
+                throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"活动信息不正确");
+            }
+            // (2) 校验活动是否正在进行中
+            else if (itemModel.getPromoModel().getStatus() != 2){
+                throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"活动信息不正确");
+            }
+        }
+
         // 2. 落单减库存
         boolean result = itemService.decreaseStock(itemId,amount);
         if (!result){
@@ -65,8 +77,17 @@ public class OrderServiceImpl implements OrderService {
         orderModel.setUserId(userId);
         orderModel.setItemId(itemId);
         orderModel.setAmount(amount);
-        orderModel.setItemPrice(itemModel.getPrice());
-        orderModel.setOrderPrice(itemModel.getPrice().multiply(new BigDecimal(amount)));
+        if (promoId != null){
+            // 有促销活动，则取促销价格
+            orderModel.setPromoId(promoId);
+            orderModel.setItemPrice(itemModel.getPromoModel().getPromoItemPrice());
+        }else {
+            // 无促销活动，则取商品价格
+            orderModel.setPromoId(0L);
+            orderModel.setItemPrice(itemModel.getPrice());
+        }
+        orderModel.setOrderPrice(orderModel.getItemPrice().multiply(new BigDecimal(amount)));
+
         // 生成订单号
         orderModel.setId(generateOrderNo());
         OrderDO orderDO = convertFromOrderModel(orderModel);
