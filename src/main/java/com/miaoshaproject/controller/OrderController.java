@@ -8,7 +8,9 @@ import com.miaoshaproject.service.model.OrderModel;
 import com.miaoshaproject.service.model.UserModel;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,19 +26,28 @@ public class OrderController extends BaseController {
     @Autowired
     private HttpServletRequest httpServletRequest;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @RequestMapping(value = "/create",method = {RequestMethod.POST},consumes = {CONTENT_TYPE_FORMED})
     @ResponseBody
-    public CommonReturnType createOrder(@RequestParam(name = "itemId") Long itemId,
+    public CommonReturnType createOrder(
+                                        @RequestParam(name = "itemId") Long itemId,
                                         @RequestParam(name = "amount") Integer amount,
                                         @RequestParam(name = "promoId",required = false) Long promoId) throws BusinessException {
 
         // 获取用户的登录信息
-        Boolean isLogin = (Boolean) httpServletRequest.getSession().getAttribute("IS_LOGIN");
-        if (isLogin == null || !isLogin){
+//        Boolean isLogin = (Boolean) httpServletRequest.getSession().getAttribute("IS_LOGIN");
+        String token = httpServletRequest.getParameterMap().get("token")[0];
+        if (StringUtils.isEmpty(token)){
             throw new BusinessException(EmBusinessError.USER_NOT_LOGIN,"用户未登录，不能下单");
         }
         // 获取登录用户信息
-        UserModel userModel = (UserModel)httpServletRequest.getSession().getAttribute("LOGIN_USER");
+//        UserModel userModel = (UserModel)httpServletRequest.getSession().getAttribute("LOGIN_USER");
+        UserModel userModel = (UserModel)redisTemplate.opsForValue().get(token);
+        if (userModel == null){
+            throw new BusinessException(EmBusinessError.USER_NOT_LOGIN,"用户未登录，不能下单");
+        }
 
         orderService.createOrder(userModel.getId(),itemId,promoId,amount);
 
