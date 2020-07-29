@@ -2,6 +2,7 @@ package com.miaoshaproject.service.model;
 
 import org.joda.time.DateTime;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -13,7 +14,7 @@ import java.math.BigDecimal;
 * @since [产品/模块版本] （可选）
 * @date 2020/4/6 4:02 下午
 */
-public class PromoModel {
+public class PromoModel implements Serializable {
 
     private Long id;
 
