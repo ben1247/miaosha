@@ -3,6 +3,7 @@ package com.miaoshaproject.controller;
 import com.miaoshaproject.controller.viewobject.ItemVO;
 import com.miaoshaproject.error.BusinessException;
 import com.miaoshaproject.response.CommonReturnType;
+import com.miaoshaproject.service.CacheService;
 import com.miaoshaproject.service.ItemService;
 import com.miaoshaproject.service.model.ItemModel;
 import com.miaoshaproject.service.model.PromoModel;
@@ -28,10 +29,14 @@ public class ItemController extends BaseController {
     private ItemService itemService;
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String,Object> redisTemplate;
 
     @Autowired
     private HttpServletRequest httpServletRequest;
+
+    @Autowired
+    private CacheService cacheService;
+
 
     @RequestMapping(value = "/create",method = {RequestMethod.POST},consumes = {CONTENT_TYPE_FORMED})
     @ResponseBody
@@ -60,14 +65,28 @@ public class ItemController extends BaseController {
     @ResponseBody
     public CommonReturnType getItem(@RequestParam(name="id") Long id){
 
-        ItemModel itemModel = (ItemModel) redisTemplate.opsForValue().get("item_"+id);
+        ItemModel itemModel = null;
+
+        // 先取本地缓存
+        itemModel = (ItemModel) cacheService.getFromCommonCache("item_" +id);
         if (itemModel == null){
-            itemModel = itemService.getItemById(id);
+            // 本地缓存不存在，则取redis缓存
+            itemModel = (ItemModel) redisTemplate.opsForValue().get("item_"+id);
+            if (itemModel == null){
+                // redis缓存不存在，则读取数据库
+                itemModel = itemService.getItemById(id);
+                if (itemModel != null){
+                    // 填充redis缓存
+                    redisTemplate.opsForValue().set("item_"+id,itemModel);
+                    redisTemplate.expire("item_"+id,10, TimeUnit.MINUTES);
+                }
+            }
             if (itemModel != null){
-                redisTemplate.opsForValue().set("item_"+id,itemModel);
-                redisTemplate.expire("item_"+id,10, TimeUnit.MINUTES);
+                // 填充本地缓存
+                cacheService.setCommonCache("item_"+id,itemModel);
             }
         }
+
         ItemVO itemVO = convertVOFromModel(itemModel);
         return CommonReturnType.create(itemVO);
     }
