@@ -68,3 +68,47 @@ CREATE TABLE `promo`  (
    `promo_item_price` double NOT NULL DEFAULT 0 COMMENT '秒杀商品价格',
    PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='秒杀活动表';
+
+
+
+INSERT INTO `item` (`id`, `title`, `price`, `description`, `sales`, `img_url`)
+VALUES
+(2, 'iphone8', 6888.00, '苹果第8代手机', 9, 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1585674468639&di=e2e732ea6836b88dc3fa460e114e4572&imgtype=0&src=http%3A%2F%2Fzbimg.taopic.com%2F171220%2F819-1G22012415344.jpg'),
+(3, 'iphone11', 5999.00, '苹果第11代手机', 20, 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1585674579860&di=423f0f59906e4939f4cb91b5e4e90fa1&imgtype=0&src=http%3A%2F%2Fx0.ifengimg.com%2Fres%2F2019%2F4C4A8140B683618EAE44EF478D78391AF0D10C4F_size21_w587_h300.jpeg');
+
+INSERT INTO `item_stock` (`id`, `stock`, `item_id`)
+VALUES
+(2, 594, 2),
+(3, 990, 3);
+
+INSERT INTO `promo` (`id`, `promo_name`, `start_date`, `end_date`, `item_id`, `promo_item_price`)
+VALUES
+(1, 'iphone11抢购', '2020-04-06 18:32:00', '2021-04-06 19:00:00', 3, 4999);
+
+INSERT INTO `sequence_info` (`name`, `current_value`, `step`)
+VALUES
+('order_info', 16, 1);
+
+INSERT INTO `user_info` (`id`, `name`, `gender`, `age`, `telphone`, `register_mode`, `third_party_id`)
+VALUES
+(2, '张三', 1, 34, '13914567811', 'byphone', '');
+
+INSERT INTO `user_password` (`id`, `user_id`, `encrypt_password`)
+VALUES
+(1, 2, 'ICy5YqxZB1uWSwcVLSNLcA==');
+
+INSERT INTO `order_info` (`id`, `user_id`, `item_id`, `item_price`, `amount`, `order_price`, `promo_id`)
+VALUES
+('2020040600000500', 2, 3, 4999, 1, 4999, 1),
+('2020040600000600', 2, 3, 5999, 1, 5999, 0),
+('2020040600000700', 2, 3, 5999, 1, 5999, 0),
+('2020041800000800', 2, 3, 5999, 1, 5999, 0),
+('2020050300000900', 2, 3, 5999, 1, 5999, 0),
+('2020050300001000', 2, 3, 5999, 1, 5999, 0),
+('2020050400001100', 2, 2, 6888, 1, 6888, 0),
+('2020050800001200', 2, 2, 6888, 1, 6888, 0),
+('2020072800001300', 2, 3, 5999, 1, 5999, 0),
+('2020072800001400', 2, 3, 5999, 1, 5999, 0),
+('2020072800001500', 2, 2, 6888, 1, 6888, 0);
+
+
