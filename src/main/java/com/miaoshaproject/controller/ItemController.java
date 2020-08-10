@@ -5,6 +5,7 @@ import com.miaoshaproject.error.BusinessException;
 import com.miaoshaproject.response.CommonReturnType;
 import com.miaoshaproject.service.CacheService;
 import com.miaoshaproject.service.ItemService;
+import com.miaoshaproject.service.PromoService;
 import com.miaoshaproject.service.model.ItemModel;
 import com.miaoshaproject.service.model.PromoModel;
 import org.joda.time.format.DateTimeFormat;
@@ -36,6 +37,9 @@ public class ItemController extends BaseController {
 
     @Autowired
     private CacheService cacheService;
+
+    @Autowired
+    private PromoService promoService;
 
 
     @RequestMapping(value = "/create",method = {RequestMethod.POST},consumes = {CONTENT_TYPE_FORMED})
@@ -103,6 +107,13 @@ public class ItemController extends BaseController {
         }).collect(Collectors.toList());
 
         return CommonReturnType.create(itemVOList);
+    }
+
+    @RequestMapping(value = "/publishpromo",method = {RequestMethod.GET})
+    @ResponseBody
+    public CommonReturnType publishPromo(@RequestParam(name="id") Long id){
+        promoService.publishPromo(id);
+        return CommonReturnType.create(null);
     }
 
     private ItemVO convertVOFromModel(ItemModel itemModel){

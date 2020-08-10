@@ -112,3 +112,4 @@ VALUES
 ('2020072800001500', 2, 2, 6888, 1, 6888, 0);
 
 
+alter table `item_stock` add unique index item_id_index(`item_id`);
