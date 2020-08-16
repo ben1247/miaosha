@@ -19,8 +19,14 @@ public interface ItemService {
     // item及promo model缓存模型
     ItemModel getItemByIdInCache(Long id);
 
-    // 库存扣减
+    // 库存扣减（redis）
     boolean decreaseStock(Long itemId,Integer amount) throws BusinessException;
+
+    // 库存回补
+    boolean increaseStock(Long itemId,Integer amount);
+
+    // 异步扣减（mq+db）
+    boolean asyncDecreaseStock(Long itemId,Integer amount);
 
     // 商品销量增加
     void increaseSales(Long itemId,Integer amount);

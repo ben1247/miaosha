@@ -2,6 +2,7 @@ package com.miaoshaproject.controller;
 
 import com.miaoshaproject.error.BusinessException;
 import com.miaoshaproject.error.EmBusinessError;
+import com.miaoshaproject.mq.MqProducer;
 import com.miaoshaproject.response.CommonReturnType;
 import com.miaoshaproject.service.OrderService;
 import com.miaoshaproject.service.model.OrderModel;
@@ -29,6 +30,9 @@ public class OrderController extends BaseController {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    @Autowired
+    private MqProducer mqProducer;
+
     @RequestMapping(value = "/create",method = {RequestMethod.POST},consumes = {CONTENT_TYPE_FORMED})
     @ResponseBody
     public CommonReturnType createOrder(
@@ -49,7 +53,10 @@ public class OrderController extends BaseController {
             throw new BusinessException(EmBusinessError.USER_NOT_LOGIN,"用户未登录，不能下单");
         }
 
-        orderService.createOrder(userModel.getId(),itemId,promoId,amount);
+//        orderService.createOrder(userModel.getId(),itemId,promoId,amount);
+        if (!mqProducer.transactionAsyncReduceStock(userModel.getId(),itemId,promoId,amount)){
+            throw new BusinessException(EmBusinessError.UNKNOWN_ERROR,"下单失败");
+        }
 
         return CommonReturnType.create(null);
     }
