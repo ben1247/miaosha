@@ -70,6 +70,15 @@ CREATE TABLE `promo`  (
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='秒杀活动表';
 
 
+drop table if exists `stock_log`;
+CREATE TABLE `stock_log`  (
+   `stock_log_id` varchar(64) NOT NULL DEFAULT 0 COMMENT '库存日志流水',
+   `item_id` bigint(20) NOT NULL COMMENT '商品id',
+   `amount` int(11) NOT NULL DEFAULT 0 COMMENT '本次扣减的库存数量',
+   `status` int(1) NOT NULL DEFAULT 1 COMMENT '1：初始状态 2：下单扣减库存成功 3：下单回滚',
+   PRIMARY KEY (`stock_log_id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='库存日志表';
+
 
 INSERT INTO `item` (`id`, `title`, `price`, `description`, `sales`, `img_url`)
 VALUES

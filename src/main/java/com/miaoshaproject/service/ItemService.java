@@ -31,4 +31,7 @@ public interface ItemService {
     // 商品销量增加
     void increaseSales(Long itemId,Integer amount);
 
+    // 初始化库存流水
+    String initStockLog(Long itemId,Integer amount);
+
 }

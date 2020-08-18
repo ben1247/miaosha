@@ -2,8 +2,10 @@ package com.miaoshaproject.service.impl;
 
 import com.miaoshaproject.dao.ItemDOMapper;
 import com.miaoshaproject.dao.ItemStockDOMapper;
+import com.miaoshaproject.dao.StockLogDOMapper;
 import com.miaoshaproject.dataobject.ItemDO;
 import com.miaoshaproject.dataobject.ItemStockDO;
+import com.miaoshaproject.dataobject.StockLogDO;
 import com.miaoshaproject.error.BusinessException;
 import com.miaoshaproject.error.EmBusinessError;
 import com.miaoshaproject.mq.MqProducer;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -47,6 +50,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
+
+    @Autowired
+    private StockLogDOMapper stockLogDOMapper;
 
     private ItemDO convertItemDOFromItemModel(ItemModel itemModel){
         if (itemModel == null){
@@ -140,14 +146,14 @@ public class ItemServiceImpl implements ItemService {
 //        int affectedRow = itemStockDOMapper.decreaseStock(itemId,amount);
         // 从redis里减库存
         Long result = redisTemplate.opsForValue().increment("promo_item_stock_"+itemId,amount * -1);
-        if (result != null && result >= 0){
+        if (result != null && result > 0){
             // 更新库存成功
-//            boolean mqResult = mqProducer.asyncReduceStock(itemId,amount);
-//            if (!mqResult){
-//                // 库存加回去
-//                redisTemplate.opsForValue().increment("promo_item_stock_"+itemId,amount);
-//                return false;
-//            }
+            return true;
+        }else if (result != null && result == 0){
+            // 打上库存已售罄的标识
+            redisTemplate.opsForValue().set("promo_item_stock_invalid_"+itemId,"true");
+
+            // 更新库存成功
             return true;
         }else {
             // 更新库存失败，需要加回去
@@ -174,6 +180,20 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public void increaseSales(Long itemId, Integer amount) {
         itemDOMapper.increaseSales(itemId,amount);
+    }
+
+    @Override
+    @Transactional
+    public String initStockLog(Long itemId, Integer amount) {
+        StockLogDO stockLogDO = new StockLogDO();
+        stockLogDO.setItemId(itemId);
+        stockLogDO.setAmount(amount);
+        stockLogDO.setStockLogId(UUID.randomUUID().toString().replace("-",""));
+        stockLogDO.setStatus(1);
+
+        stockLogDOMapper.insertSelective(stockLogDO);
+
+        return stockLogDO.getStockLogId();
     }
 
     private ItemModel convertModelFromDataObject(ItemDO itemDO , ItemStockDO itemStockDO){
