@@ -19,4 +19,7 @@ public interface PromoService {
     // 活动发布
     void publishPromo(Long promoId);
 
+    // 生成秒杀用的令牌
+    String generatePromoToken(Long promoId,Long itemId,Long userId);
+
 }
