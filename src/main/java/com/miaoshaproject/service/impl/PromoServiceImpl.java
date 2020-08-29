@@ -79,14 +79,28 @@ public class PromoServiceImpl implements PromoService {
                 redisTemplate.delete("promo_item_stock_invalid_"+promoDO.getItemId());
             }
         }
+
+        // 将大闸的限制数字设到redis内,为当前活动商品库存的5倍
+        redisTemplate.opsForValue().set("promo_door_count_"+promoId,itemModel.getStock()*5);
+
+
     }
 
     @Override
     public String generatePromoToken(Long promoId,Long itemId,Long userId) {
+
+        // 判断库存是否已售罄，若对应的售罄key存在，则直接返回下单失败
+        Boolean stockInvalid = redisTemplate.hasKey("promo_item_stock_invalid_"+itemId);
+        if (stockInvalid != null && stockInvalid){
+            System.out.println("获取秒杀令牌失败，原因：库存已售罄");
+            return null;
+        }
+
         PromoDO promoDO = promoDOMapper.selectByPrimaryKey(promoId);
 
         PromoModel promoModel = convertFromDataObject(promoDO);
         if (promoModel == null){
+            System.out.println("获取秒杀令牌失败，原因：没有促销活动");
             return null;
         }
 
@@ -103,18 +117,28 @@ public class PromoServiceImpl implements PromoService {
         }
         // 判断活动是否正在进行
         if (promoModel.getStatus() != 2){
+            System.out.println("获取秒杀令牌失败，原因：促销活动尚未进行中");
             return null;
         }
 
         // 判断item信息是否存在
         ItemModel itemModel = itemService.getItemByIdInCache(itemId);
         if (itemModel == null){
+            System.out.println("获取秒杀令牌失败，原因：商品不存在");
             return null;
         }
 
         // 判断用户信息是否存在
         UserModel userModel = userService.getUserByIdInCache(userId);
         if (userModel == null){
+            System.out.println("获取秒杀令牌失败，原因：用户不存在");
+            return null;
+        }
+
+        // 获取秒杀大闸的count数量
+        long result = redisTemplate.opsForValue().increment("promo_door_count_"+promoId,-1);
+        if (result < 0){
+            System.out.println("获取秒杀令牌失败，原因：秒杀大闸已上线");
             return null;
         }
 
