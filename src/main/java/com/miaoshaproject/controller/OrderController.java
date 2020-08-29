@@ -1,5 +1,6 @@
 package com.miaoshaproject.controller;
 
+import com.google.common.util.concurrent.RateLimiter;
 import com.miaoshaproject.error.BusinessException;
 import com.miaoshaproject.error.EmBusinessError;
 import com.miaoshaproject.mq.MqProducer;
@@ -50,9 +51,15 @@ public class OrderController extends BaseController {
 
     private ExecutorService executorService;
 
+    // 限流
+    private RateLimiter orderCreateRateLimiter;
+
     @PostConstruct
     public void init(){
         executorService = Executors.newFixedThreadPool(20);
+
+        // 300的并发
+        orderCreateRateLimiter = RateLimiter.create(300);
     }
 
     // 生成验证码
@@ -120,6 +127,10 @@ public class OrderController extends BaseController {
                                         @RequestParam(name = "amount") Integer amount,
                                         @RequestParam(name = "promoId",required = false) Long promoId,
                                         @RequestParam(name="promoToken",required = false) String promoToken) throws BusinessException {
+
+        if (!orderCreateRateLimiter.tryAcquire()){
+            throw new BusinessException(EmBusinessError.RATE_LIMIT);
+        }
 
         // 获取用户的登录信息
         String token = httpServletRequest.getParameterMap().get("token")[0];
