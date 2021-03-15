@@ -20,6 +20,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public CommonReturnType doError(HttpServletRequest request , HttpServletResponse response,Exception ex){
+        ex.printStackTrace();
         Map<String,Object> responseData = new HashMap<>();
         if (ex instanceof BusinessException){
             BusinessException businessException = (BusinessException)ex;

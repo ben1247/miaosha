@@ -116,6 +116,13 @@ public class ItemController extends BaseController {
         return CommonReturnType.create(null);
     }
 
+    @RequestMapping(value = "/syncItemToMongo",method = {RequestMethod.GET})
+    @ResponseBody
+    public CommonReturnType syncItemToMongo(){
+        itemService.syncItemToMongo();
+        return CommonReturnType.create(null);
+    }
+
     private ItemVO convertVOFromModel(ItemModel itemModel){
         if (itemModel == null){
             return null;
@@ -136,4 +143,5 @@ public class ItemController extends BaseController {
         }
         return itemVO;
     }
+
 }

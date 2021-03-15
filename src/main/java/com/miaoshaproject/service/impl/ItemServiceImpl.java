@@ -8,6 +8,7 @@ import com.miaoshaproject.dataobject.ItemStockDO;
 import com.miaoshaproject.dataobject.StockLogDO;
 import com.miaoshaproject.error.BusinessException;
 import com.miaoshaproject.error.EmBusinessError;
+import com.miaoshaproject.mongo.ItemMongo;
 import com.miaoshaproject.mq.MqProducer;
 import com.miaoshaproject.service.ItemService;
 import com.miaoshaproject.service.PromoService;
@@ -54,6 +55,9 @@ public class ItemServiceImpl implements ItemService {
     @Autowired
     private StockLogDOMapper stockLogDOMapper;
 
+    @Autowired
+    private ItemMongo itemMongo;
+
     private ItemDO convertItemDOFromItemModel(ItemModel itemModel){
         if (itemModel == null){
             return null;
@@ -92,6 +96,9 @@ public class ItemServiceImpl implements ItemService {
         itemModel.setId(itemDO.getId());
         ItemStockDO itemStockDO = convertItemStockDOFromItemModel(itemModel);
         itemStockDOMapper.insertSelective(itemStockDO);
+
+        // 写入mongodb
+        itemMongo.saveItem(itemDO);
 
         //返回创建完成的对象
         return getItemById(itemModel.getId());
@@ -194,6 +201,14 @@ public class ItemServiceImpl implements ItemService {
         stockLogDOMapper.insertSelective(stockLogDO);
 
         return stockLogDO.getStockLogId();
+    }
+
+    @Override
+    public void syncItemToMongo() {
+        List<ItemDO> itemDOList = itemDOMapper.selectAll();
+        for (ItemDO itemDO : itemDOList){
+            itemMongo.saveItem(itemDO);
+        }
     }
 
     private ItemModel convertModelFromDataObject(ItemDO itemDO , ItemStockDO itemStockDO){

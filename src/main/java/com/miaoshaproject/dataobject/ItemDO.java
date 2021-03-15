@@ -1,7 +1,11 @@
 package com.miaoshaproject.dataobject;
 
+import com.miaoshaproject.constant.Constant;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.math.BigDecimal;
 
+@Document(collection = Constant.MongoCollections.MONGO_COLLECTION_ITEM)
 public class ItemDO {
     /**
      *
