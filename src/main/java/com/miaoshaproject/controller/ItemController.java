@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -97,8 +99,13 @@ public class ItemController extends BaseController {
 
     @RequestMapping(value = "/list",method = {RequestMethod.GET})
     @ResponseBody
-    public CommonReturnType listItem(){
-        List<ItemModel> itemModelList = itemService.listItem();
+    public CommonReturnType listItem(@RequestParam(name = "title" , required = false) String title,
+            @RequestParam(name = "pageNo")Integer pageNo, @RequestParam(name = "pageSize")Integer pageSize){
+        Map<String,Object> condition = new HashMap<>();
+        condition.put("title",title);
+        condition.put("pageNo",pageNo);
+        condition.put("pageSize",pageSize);
+        List<ItemModel> itemModelList = itemService.listItem(condition);
 
         // 使用stream api将list内的itemModel转化为itemVO
         List<ItemVO> itemVOList = itemModelList.stream().map(itemModel -> {

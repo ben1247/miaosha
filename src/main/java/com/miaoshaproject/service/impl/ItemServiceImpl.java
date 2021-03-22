@@ -26,7 +26,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -105,8 +107,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemModel> listItem() {
-        List<ItemDO> itemDOList = itemDOMapper.selectAll();
+    public List<ItemModel> listItem(Map<String,Object> condition) {
+        List<ItemDO> itemDOList = itemMongo.selectItem(condition);
+//        if (itemDOList == null || itemDOList.size() == 0){
+//            itemDOList = itemDOMapper.selectByCondition(condition);
+//        }
         return itemDOList.stream().map(itemDO -> {
             ItemStockDO itemStockDO = itemStockDOMapper.selectByItemId(itemDO.getId());
             ItemModel itemModel = convertModelFromDataObject(itemDO,itemStockDO);

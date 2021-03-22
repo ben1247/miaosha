@@ -153,11 +153,22 @@
     select
     <include refid="Base_Column_List" />
     from item
+  </select>
+
+  <select id="selectByCondition" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from item
+    <where>
+        <if test="title!=null and title!=''">
+          and title like CONCAT('%',#{title,jdbcType=VARCHAR},'%'))
+        </if>
+    </where>
     order by sales desc
   </select>
 
-  <update id="increaseSales" >
 
+  <update id="increaseSales" >
     update item
     set sales = sales + #{amount,jdbcType=INTEGER}
     where id = #{id,jdbcType=BIGINT}

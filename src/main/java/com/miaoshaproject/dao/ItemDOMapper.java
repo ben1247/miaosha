@@ -4,6 +4,7 @@ import com.miaoshaproject.dataobject.ItemDO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ItemDOMapper {
     /**
@@ -55,6 +56,8 @@ public interface ItemDOMapper {
     int updateByPrimaryKey(ItemDO record);
 
     List<ItemDO> selectAll();
+
+    List<ItemDO> selectByCondition(Map<String,Object> condition);
 
     int increaseSales(@Param("id") Long id , @Param("amount") Integer amount);
 

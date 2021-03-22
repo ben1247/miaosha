@@ -4,6 +4,7 @@ import com.miaoshaproject.error.BusinessException;
 import com.miaoshaproject.service.model.ItemModel;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ItemService {
 
@@ -11,7 +12,7 @@ public interface ItemService {
     ItemModel createItem(ItemModel itemModel) throws BusinessException;
 
     // 商品列表浏览
-    List<ItemModel> listItem();
+    List<ItemModel> listItem(Map<String,Object> condition);
 
     // 商品详情浏览
     ItemModel getItemById(Long id);
